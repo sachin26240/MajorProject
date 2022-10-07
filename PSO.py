@@ -7,8 +7,7 @@ import time
  
 print('---------------------------PSO---------------------------')
 # read 2nd sheet of an excel file
-path = 'data1.xlsx'
-
+path = 'Excel File/task40.xlsx'
 
 TaskDetails_DF = pd.read_excel(path, sheet_name = 'TaskDetails',index_col=0)
 NodeDetails_DF = pd.read_excel(path, sheet_name = 'NodeDetails',index_col=0)
@@ -22,7 +21,7 @@ costList = CostTable_DF.values.tolist()[1:]
 
 TotalNode = len(eTimeList)
 NoOfTask = len(eTimeList[0])
-print(TotalNode,NoOfTask)
+# print(TotalNode,NoOfTask)
 
 #minmakespan
 lengthSum = 0

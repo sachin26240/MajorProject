@@ -4,7 +4,7 @@ import pandas as pd
 # from cloudfogcomputing_v3 import NoOfTask
 print('---------------------Genetic Algorithm----------------------------')
 # read 2nd sheet of an excel file
-path = 'data1.xlsx'
+path = 'Excel File/task40.xlsx'
 TaskDetails_DF = pd.read_excel(path, sheet_name = 'TaskDetails',index_col=0)
 NodeDetails_DF = pd.read_excel(path, sheet_name = 'NodeDetails',index_col=0)
 ExecutionTable_DF = pd.read_excel(path, sheet_name = 'ExecutionTable',index_col=0)

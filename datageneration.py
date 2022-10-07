@@ -154,7 +154,7 @@ def dataGeneration(path,numoftask,numofcloudnode,numoffognode):
     # Excel_File.save()
     Excel_File.close()
 
-dataGeneration('data1.xlsx',10,3,10)
+dataGeneration('Excel File/task40.xlsx',40,3,10)
 
 # #minmakespan
 # lengthSum = 0
