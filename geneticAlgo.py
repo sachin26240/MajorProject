@@ -4,7 +4,7 @@ import pandas as pd
 # from cloudfogcomputing_v3 import NoOfTask
 print('---------------------Genetic Algorithm----------------------------')
 # read 2nd sheet of an excel file
-path = 'Excel File/task40.xlsx'
+path = 'Excel File/task120.xlsx'
 TaskDetails_DF = pd.read_excel(path, sheet_name = 'TaskDetails',index_col=0)
 NodeDetails_DF = pd.read_excel(path, sheet_name = 'NodeDetails',index_col=0)
 ExecutionTable_DF = pd.read_excel(path, sheet_name = 'ExecutionTable',index_col=0)
@@ -77,6 +77,7 @@ import pandas as pd
 import numpy as np
 import time
 import copy
+from statistics import mean
 
 # ###################################################
 # #-----importing Data-----------------------
@@ -116,7 +117,6 @@ num_mutation_jobs=round(num_task*mutation_selection_rate)
 # speed up the data search
 # Task_Vm_Cost=[list(map(float, Tasks_Vms_Cost.iloc[i])) for i in range(num_task)]
 # Task_Vm_Reliability=[list(map(float,Tasks_Vms_Reliability.iloc[i])) for i in range(num_task)]
-start_time = time.time()
 
 ###################################################
 #-----Non-dominated sorting function---------------
@@ -221,105 +221,118 @@ def selection(population_size,front,chroms_obj_record,total_chromosome):
 ###################################################
 #-----Generate initial population------------------
 ###################################################
-best_list,best_obj=[],[]
-population_list=[]
-for i in range(population_size):
-    #print('i=',i)
-    nxm_random_num=list(np.random.permutation(num_task)) # generate a random permutation of 0 to num_job*num_mc-1
-    population_list.append(nxm_random_num) # add to the population_list
-    for j in range(num_task):
-        population_list[i][j]=population_list[i][j]%num_vm # convert to job number format, every job appears m times
+avgFitnessValue = []
+avgCost = []
+avgMakespan = []
+for times in range(20):
+    print('Dataset Time:',times+1)
+    start_time = time.time()
+    best_list,best_obj=[],[]
+    population_list=[]
+    for i in range(population_size):
+        #print('i=',i)
+        nxm_random_num=list(np.random.permutation(num_task)) # generate a random permutation of 0 to num_job*num_mc-1
+        population_list.append(nxm_random_num) # add to the population_list
+        for j in range(num_task):
+            population_list[i][j]=population_list[i][j]%num_vm # convert to job number format, every job appears m times
 
-        
-for n in range(num_iteration):         
-    ###################################################
-    #-----Crossover------------------------------------
-    ###################################################
-    parent_list=copy.deepcopy(population_list)
-    offspring_list=[]
-    S=list(np.random.permutation(population_size)) # generate a random sequence to select the parent chromosome to crossover
-    
-    for m in range(int(population_size/2)):
-        
-        parent_1= population_list[S[2*m]][:]
-        parent_2= population_list[S[2*m+1]][:]
-        child_1=parent_1[:]
-        child_2=parent_2[:]
-        
-        cutpoint=list(np.random.choice(num_task, 2, replace=False))
-        cutpoint.sort()
-    
-        child_1[cutpoint[0]:cutpoint[1]]=parent_2[cutpoint[0]:cutpoint[1]]
-        child_2[cutpoint[0]:cutpoint[1]]=parent_1[cutpoint[0]:cutpoint[1]]
-        
-        offspring_list.extend((child_1,child_2))
-
-    ###################################################
-    #-----Mutation-------------------------------------
-    ###################################################
-    for m in range(len(offspring_list)):
-        mutation_prob=np.random.rand()
-        if mutation_rate <= mutation_prob:
-            m_chg=list(np.random.choice(num_task, num_mutation_jobs, replace=False)) # chooses the position to mutation
-            t_value_last=offspring_list[m][m_chg[0]] # save the value which is on the first mutation position
-            for i in range(num_mutation_jobs-1):
-                offspring_list[m][m_chg[i]]=offspring_list[m][m_chg[i+1]] # displacement
             
-            offspring_list[m][m_chg[num_mutation_jobs-1]]=t_value_last
+    for n in range(num_iteration):         
+        ###################################################
+        #-----Crossover------------------------------------
+        ###################################################
+        parent_list=copy.deepcopy(population_list)
+        offspring_list=[]
+        S=list(np.random.permutation(population_size)) # generate a random sequence to select the parent chromosome to crossover
+        
+        for m in range(int(population_size/2)):
+            
+            parent_1= population_list[S[2*m]][:]
+            parent_2= population_list[S[2*m+1]][:]
+            child_1=parent_1[:]
+            child_2=parent_2[:]
+            
+            cutpoint=list(np.random.choice(num_task, 2, replace=False))
+            cutpoint.sort()
+        
+            child_1[cutpoint[0]:cutpoint[1]]=parent_2[cutpoint[0]:cutpoint[1]]
+            child_2[cutpoint[0]:cutpoint[1]]=parent_1[cutpoint[0]:cutpoint[1]]
+            
+            offspring_list.extend((child_1,child_2))
+
+        ###################################################
+        #-----Mutation-------------------------------------
+        ###################################################
+        for m in range(len(offspring_list)):
+            mutation_prob=np.random.rand()
+            if mutation_rate <= mutation_prob:
+                m_chg=list(np.random.choice(num_task, num_mutation_jobs, replace=False)) # chooses the position to mutation
+                t_value_last=offspring_list[m][m_chg[0]] # save the value which is on the first mutation position
+                for i in range(num_mutation_jobs-1):
+                    offspring_list[m][m_chg[i]]=offspring_list[m][m_chg[i+1]] # displacement
                 
-    ###################################################
-    #-----Fitness valuse ------------------------------
-    ###################################################               
-    total_chromosome=copy.deepcopy(parent_list)+copy.deepcopy(offspring_list)
-    chroms_obj_record={} 
-    for m in range(population_size*2):
-        gen_c=0
-        gen_r=1
-        mksp = makeSpan(total_chromosome[m])
-        gen_c = totalCost(total_chromosome[m])
-        gen_r = utilityFunction(mksp,gen_c)
-        # for nn in range(num_task):
+                offspring_list[m][m_chg[num_mutation_jobs-1]]=t_value_last
+                    
+        ###################################################
+        #-----Fitness valuse ------------------------------
+        ###################################################               
+        total_chromosome=copy.deepcopy(parent_list)+copy.deepcopy(offspring_list)
+        chroms_obj_record={} 
+        for m in range(population_size*2):
+            gen_c=0
+            gen_r=1
+            mksp = makeSpan(total_chromosome[m])
+            gen_c = totalCost(total_chromosome[m])
+            gen_r = utilityFunction(mksp,gen_c)
+            # for nn in range(num_task):
 
-        #     gen_c +=Task_Vm_Cost[nn][total_chromosome[m][nn]]
-        #     gen_r *=Task_Vm_Reliability[nn][total_chromosome[m][nn]]
-        chroms_obj_record[m]=[gen_r,gen_c]
+            #     gen_c +=Task_Vm_Cost[nn][total_chromosome[m][nn]]
+            #     gen_r *=Task_Vm_Reliability[nn][total_chromosome[m][nn]]
+            chroms_obj_record[m]=[gen_r,gen_c]
+            
+        ###################################################
+        #-----Non-dominated sorting -----------------------
+        ################################################### 
+        front=non_dominated_sorting(population_size,chroms_obj_record)
         
-    ###################################################
-    #-----Non-dominated sorting -----------------------
-    ################################################### 
-    front=non_dominated_sorting(population_size,chroms_obj_record)
-    
-    ###################################################
-    #-----Selection -----------------------------------
-    ###################################################         
-    population_list,new_pop=selection(population_size,front,chroms_obj_record,total_chromosome)
-    new_pop_obj=[chroms_obj_record[k] for k in new_pop] 
-    
-    ###################################################
-    #-----Comparison ----------------------------------
-    ################################################### 
-    if n==0:
-        best_list=copy.deepcopy(population_list)
-        best_obj=copy.deepcopy(new_pop_obj)
-    else:            
-        total_list=copy.deepcopy(population_list)+copy.deepcopy(best_list)
-        total_obj=copy.deepcopy(new_pop_obj)+copy.deepcopy(best_obj)
+        ###################################################
+        #-----Selection -----------------------------------
+        ###################################################         
+        population_list,new_pop=selection(population_size,front,chroms_obj_record,total_chromosome)
+        new_pop_obj=[chroms_obj_record[k] for k in new_pop] 
         
-        now_best_front=non_dominated_sorting(population_size,total_obj)
-        best_list,best_pop=selection(population_size,now_best_front,total_obj,total_list)
-        best_obj=[total_obj[k] for k in best_pop]
-###################################################
-#-----Results ------------------------------------
-###################################################
-print('-----Results -----------------------------')
-print("One chromosome(1x100)=",best_list[0])
-print("[Reliability,Cost]=",best_obj[0])
-print("------------------------------------------")
+        ###################################################
+        #-----Comparison ----------------------------------
+        ################################################### 
+        if n==0:
+            best_list=copy.deepcopy(population_list)
+            best_obj=copy.deepcopy(new_pop_obj)
+        else:            
+            total_list=copy.deepcopy(population_list)+copy.deepcopy(best_list)
+            total_obj=copy.deepcopy(new_pop_obj)+copy.deepcopy(best_obj)
+            
+            now_best_front=non_dominated_sorting(population_size,total_obj)
+            best_list,best_pop=selection(population_size,now_best_front,total_obj,total_list)
+            best_obj=[total_obj[k] for k in best_pop]
+    ###################################################
+    #-----Results ------------------------------------
+    ###################################################
+    print('-----Results -----------------------------')
+    print("One chromosome(1x100)=",best_list[0])
+    print("[Reliability,Cost]=",best_obj[0])
+    print("------------------------------------------")
 
-print('The elapsed time:%s'% (time.time() - start_time))
+    print('The elapsed time:%s'% (time.time() - start_time))
 
-print('Global Best:',best_list[0])
-print('Total Cost:',totalCost(best_list[0]))
-print('Makespan:',makeSpan(best_list[0]))
-print('Optimal Function value:',utilityFunction(makeSpan(best_list[0]),totalCost(best_list[0])))
-print('----------------------------------------')
+    print('Global Best:',best_list[0])
+    print('Total Cost:',totalCost(best_list[0]))
+    print('Makespan:',makeSpan(best_list[0]))
+    print('Optimal Function value:',utilityFunction(makeSpan(best_list[0]),totalCost(best_list[0])))
+    print('----------------------------------------')
+    avgFitnessValue.append(utilityFunction(makeSpan(best_list[0]),totalCost(best_list[0])))
+    avgCost.append(totalCost(best_list[0]))
+    avgMakespan.append(makeSpan(best_list[0]))
+
+print('Average Cost:',mean(avgCost))
+print('Average Makespan:',mean(avgMakespan))
+print('Average Fitness Value:',mean(avgFitnessValue))
