@@ -4,7 +4,8 @@ import pandas as pd
 # from cloudfogcomputing_v3 import NoOfTask
 print('---------------------Genetic Algorithm----------------------------')
 # read 2nd sheet of an excel file
-path = 'Excel File/task120.xlsx'
+alphaValue = 0.5
+path = 'Excel File/task40.xlsx'
 TaskDetails_DF = pd.read_excel(path, sheet_name = 'TaskDetails',index_col=0)
 NodeDetails_DF = pd.read_excel(path, sheet_name = 'NodeDetails',index_col=0)
 ExecutionTable_DF = pd.read_excel(path, sheet_name = 'ExecutionTable',index_col=0)
@@ -17,7 +18,10 @@ costList = CostTable_DF.values.tolist()[1:]
 
 TotalNode = len(eTimeList)
 NoOfTask = len(eTimeList[0])
-# print(TotalNode,NoOfTask)
+# print("Total Nodes:",TotalNode,"Total Tasks:",NoOfTask)
+print('Number of cloud nodes:',3)
+print('Number of fog nodes:',10)
+print('Number of tasks:',NoOfTask)
 
 #minmakespan
 lengthSum = 0
@@ -41,7 +45,7 @@ print('minTotalcost:',minTotalcost)
 # minTotalcost
 
 #utility function
-def utilityFunction(makespan,totalcost,minTotalcost=minTotalcost,minmakespan=minmakespan,alpha = 0.5):
+def utilityFunction(makespan,totalcost,minTotalcost=minTotalcost,minmakespan=minmakespan,alpha = alphaValue):
   # alpha = 0.5
   x= (alpha*(minmakespan/makespan)) + ((1-alpha)*(minTotalcost/totalcost))
   return x
@@ -224,8 +228,9 @@ def selection(population_size,front,chroms_obj_record,total_chromosome):
 avgFitnessValue = []
 avgCost = []
 avgMakespan = []
-for times in range(20):
-    print('Dataset Time:',times+1)
+for times in range(1):
+    print('alpha:',alphaValue)
+    # print('Dataset Time:',times+1)
     start_time = time.time()
     best_list,best_obj=[],[]
     population_list=[]
@@ -317,10 +322,10 @@ for times in range(20):
     ###################################################
     #-----Results ------------------------------------
     ###################################################
-    print('-----Results -----------------------------')
-    print("One chromosome(1x100)=",best_list[0])
-    print("[Reliability,Cost]=",best_obj[0])
-    print("------------------------------------------")
+    # print('-----Results -----------------------------')
+    # print("One chromosome(1x100)=",best_list[0])
+    # print("[Reliability,Cost]=",best_obj[0])
+    # print("------------------------------------------")
 
     print('The elapsed time:%s'% (time.time() - start_time))
 
@@ -332,7 +337,59 @@ for times in range(20):
     avgFitnessValue.append(utilityFunction(makeSpan(best_list[0]),totalCost(best_list[0])))
     avgCost.append(totalCost(best_list[0]))
     avgMakespan.append(makeSpan(best_list[0]))
+    # alphaValue+=0.1
 
-print('Average Cost:',mean(avgCost))
-print('Average Makespan:',mean(avgMakespan))
-print('Average Fitness Value:',mean(avgFitnessValue))
+# print('Average Cost:',mean(avgCost))
+# print('Average Makespan:',mean(avgMakespan))
+# print('Average Fitness Value:',mean(avgFitnessValue))
+
+#----------------------------------------------End---------------------------------------------------------------------------------#
+#---------------------------------------------------Gantt Chart---------------------------------------------------------#
+
+def List2Matrix(task):
+  lst2mat =[]
+  for Ni in range(TotalNode):
+    temp = []
+    for Ti in range(NoOfTask):
+      temp.append(0)
+    lst2mat.append(temp)
+
+  for Ti in range(NoOfTask):
+    lst2mat[task[Ti]][Ti] = 1
+  return lst2mat
+
+# chrom = [8, 5, 6, 8, 12, 12, 1, 3, 6, 0, 0, 1, 4, 3, 7, 6, 0, 4, 7, 4, 3, 1, 9, 1, 7, 3, 3, 0, 12, 6, 11, 11, 8, 6, 1, 11, 11, 1, 2, 1, 0, 5, 12, 7, 5, 2, 7, 1, 2, 4, 1, 12, 1, 11, 9, 0, 0, 6, 12, 3, 9, 6, 3, 12, 5, 9, 0, 1, 1, 3, 0, 1, 11, 12, 0, 2, 1, 9, 7, 8, 2, 10, 0, 3, 6, 8, 10, 11, 4, 2, 6, 8, 6, 1, 6, 4, 9, 9, 4, 1, 2, 2, 4, 7, 2, 2, 3, 12, 2, 6, 9, 2, 1, 11, 6, 2, 1, 9, 9, 2]
+lstmat= List2Matrix(best_list[0])
+task = []
+tme = []
+lstmat= List2Matrix(best_list[0])
+for tem in range(TotalNode):
+  val = []
+  tsk = [i for i,val in enumerate(best_list[0]) if val==tem]
+  # NiTasks.append([i for i,val in enumerate(x) if val==tem])
+  for sac in tsk:
+    val.append(eTimeList[tem][sac])
+    lstmat[tem][sac] = eTimeList[tem][sac]
+  task.append(tsk)
+  tme.append(val)
+# print(task)
+# print(tme)
+#-----------------------------------------------------
+cloudTask = []
+temp = []
+for i in range(1,NoOfTask+1):
+  temp.append('Task_'+str(i))
+cloudTask.append(temp)
+
+nodeTask = []
+temp = []
+for i in range(1,TotalNode+1):
+  temp.append('Node_'+str(i))
+nodeTask.append(temp)
+
+index=nodeTask
+#-------------------------------------------------------------------
+GanttChart_DF = pd.DataFrame(lstmat, columns =cloudTask, index = index) 
+Excel_File= pd.ExcelWriter('output/GAchart.xlsx', engine = 'openpyxl')
+GanttChart_DF.to_excel(Excel_File, sheet_name="GanttChart_DF", index=True)
+Excel_File.close()

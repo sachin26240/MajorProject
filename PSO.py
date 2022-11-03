@@ -8,7 +8,8 @@ from statistics import mean
  
 print('---------------------------PSO---------------------------')
 # read 2nd sheet of an excel file
-path = 'Excel File/task80.xlsx'
+path = 'Excel File/task40.xlsx'
+alphaVal = 0.5
 
 TaskDetails_DF = pd.read_excel(path, sheet_name = 'TaskDetails',index_col=0)
 NodeDetails_DF = pd.read_excel(path, sheet_name = 'NodeDetails',index_col=0)
@@ -23,6 +24,9 @@ costList = CostTable_DF.values.tolist()[1:]
 TotalNode = len(eTimeList)
 NoOfTask = len(eTimeList[0])
 # print(TotalNode,NoOfTask)
+print('Number of cloud nodes:',3)
+print('Number of fog nodes:',10)
+print('Number of tasks:',NoOfTask)
 
 #minmakespan
 lengthSum = 0
@@ -48,7 +52,7 @@ print('minTotalcost:',minTotalcost)
 # minTotalcost
 
 #utility function
-def utilityFunction(makespan,totalcost,minTotalcost=minTotalcost,minmakespan=minmakespan,alpha = 0.5):
+def utilityFunction(makespan,totalcost,minTotalcost=minTotalcost,minmakespan=minmakespan,alpha = alphaVal):
   # alpha = 0.5
   x= (alpha*(minmakespan/makespan)) + ((1-alpha)*(minTotalcost/totalcost))
   return x
@@ -119,8 +123,9 @@ def velocityMatix(rang):
 avgFitnessValue = []
 avgCost = []
 avgMakespan = []
-for times in range(20):
-  print('Dataset Time:',times+1)
+for times in range(1):
+  # print('Dataset Time:',times+1)
+  print('alpha:',alphaVal)
   start_time = time.time()
 
   num_task = NoOfTask
@@ -190,21 +195,60 @@ for times in range(20):
           else:
             lst2mat[particle][Ni][Ti] = 0
       # print(lst2mat)
+      
+  print('The elapsed time:%s'% (time.time() - start_time))
   print('Global best:',gbest)
   print('Total Cost:',totalCost(gbest))
   print('Makespan:',makeSpan(gbest))
   print('Optimal Function value:',utilityFunction(makeSpan(gbest),totalCost(gbest)))
-  print('The elapsed time:%s'% (time.time() - start_time))
+  
   avgFitnessValue.append(utilityFunction(makeSpan(gbest),totalCost(gbest)))
   avgCost.append(totalCost(gbest))
   avgMakespan.append(makeSpan(gbest))
 
-print('Average Cost:',mean(avgCost))
-print('Average Makespan:',mean(avgMakespan))
-print('Average Fitness Value:',mean(avgFitnessValue))
+# print('Average Cost:',mean(avgCost))
+# print('Average Makespan:',mean(avgMakespan))
+# print('Average Fitness Value:',mean(avgFitnessValue))
 
 
 # utilityFunction(makeSpan([4, 6, 1, 9, 4, 8, 7, 0, 3, 0]),totalCost([4, 6, 1, 9, 4, 8, 7, 0, 3, 0]))
 
 # print(makeSpan([4, 6, 1, 9, 4, 8, 7, 0, 3, 0]))
 # # totalCost([4, 6, 1, 9, 4, 8, 7, 0, 3, 0])
+
+#--------------------------------------------------------------------------------------------------------------------
+
+lstmat= List2Matrix(gbest)
+task = []
+tme = []
+lstmat= List2Matrix(gbest)
+for tem in range(TotalNode):
+  val = []
+  tsk = [i for i,val in enumerate(gbest) if val==tem]
+  # NiTasks.append([i for i,val in enumerate(x) if val==tem])
+  for sac in tsk:
+    val.append(eTimeList[tem][sac])
+    lstmat[tem][sac] = eTimeList[tem][sac]
+  task.append(tsk)
+  tme.append(val)
+# print(task)
+# print(tme)
+#-----------------------------------------------------
+cloudTask = []
+temp = []
+for i in range(1,NoOfTask+1):
+  temp.append('Task_'+str(i))
+cloudTask.append(temp)
+
+nodeTask = []
+temp = []
+for i in range(1,TotalNode+1):
+  temp.append('Node_'+str(i))
+nodeTask.append(temp)
+
+index=nodeTask
+#-------------------------------------------------------------------
+GanttChart_DF = pd.DataFrame(lstmat, columns =cloudTask, index = index) 
+Excel_File= pd.ExcelWriter('output/PSOchart.xlsx', engine = 'openpyxl')
+GanttChart_DF.to_excel(Excel_File, sheet_name="PSO_GanttChart", index=True)
+Excel_File.close()
