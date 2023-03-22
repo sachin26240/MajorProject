@@ -5,7 +5,7 @@ import pandas as pd
 print('---------------------Genetic Algorithm----------------------------')
 # read 2nd sheet of an excel file
 alphaValue = 0.5
-path = 'Excel File/task40.xlsx'
+path = 'Excel File/task120.xlsx'
 TaskDetails_DF = pd.read_excel(path, sheet_name = 'TaskDetails',index_col=0)
 NodeDetails_DF = pd.read_excel(path, sheet_name = 'NodeDetails',index_col=0)
 ExecutionTable_DF = pd.read_excel(path, sheet_name = 'ExecutionTable',index_col=0)
