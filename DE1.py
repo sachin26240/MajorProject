@@ -9,7 +9,7 @@ from statistics import mean
 print('---------------------------Differential Evolution---------------------------')
 # read 2nd sheet of an excel file
 path = 'Excel File/task120.xlsx'
-alphaVal = 0.5
+alphaVal = 1.0
 
 TaskDetails_DF = pd.read_excel(path, sheet_name = 'TaskDetails',index_col=0)
 NodeDetails_DF = pd.read_excel(path, sheet_name = 'NodeDetails',index_col=0)
@@ -27,7 +27,6 @@ NoOfTask = len(eTimeList[0])
 print('Number of cloud nodes:',3)
 print('Number of fog nodes:',10)
 print('Number of tasks:',NoOfTask)
-
 #minmakespan
 lengthSum = 0
 cpuRateSum = 0
@@ -130,13 +129,26 @@ def differential_evolution(pop_size, generations, f, cr, bounds):
     return best, best_fitness
 
 start_time = time.time()
-best, best_fun = differential_evolution(100,500,utilityFunction,0.5,(0,TotalNode-1))
+avgFitnessValue = []
+avgCost = []
+avgMakespan = []
+for i in range(1):
+  print(i)
+  best, best_fun = differential_evolution(100,500,utilityFunction,0.5,(0,TotalNode-1))
+  avgFitnessValue.append(best_fun)
+  avgCost.append(totalCost(best))
+  avgMakespan.append(makeSpan(best))
 print('The elapsed time:%s'% (time.time() - start_time))
-print('Best:',best)
+print('Best:',list(best))
 print('Total Cost:',totalCost(best))
 print('Makespan:',makeSpan(best))
 print('Optimal Function value:',utilityFunction(makeSpan(best),totalCost(best)))
-# print(best_fun)
+print('alpha:',alphaVal)
+print(best_fun)
+print('Average Cost:',mean(avgCost))
+print('Average Fitness Value:',mean(avgFitnessValue))
+print('Average MakeSpan:',mean(avgMakespan))
+
 
 #----------------------------------------------End---------------------------------------------------------------------------------#
 #---------------------------------------------------Gantt Chart---------------------------------------------------------#
