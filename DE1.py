@@ -8,8 +8,8 @@ from statistics import mean
  
 print('---------------------------Differential Evolution---------------------------')
 # read 2nd sheet of an excel file
-path = 'Excel File/task120.xlsx'
-alphaVal = 1.0
+path = 'Excel File/task40.xlsx'
+alphaVal = 0.5
 
 TaskDetails_DF = pd.read_excel(path, sheet_name = 'TaskDetails',index_col=0)
 NodeDetails_DF = pd.read_excel(path, sheet_name = 'NodeDetails',index_col=0)
