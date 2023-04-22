@@ -29,8 +29,11 @@ class Simulation:
         self.dataGeneration(n,3,10)
         self.TotalNode = len(self.eTimeList)
         self.NoOfTask = len(self.eTimeList[0])
+        print()
         self.showNodeDetails()
+        print()
         self.showTaskDetails()
+        print()
         self.calculateMinMakeSpan()
         self.calculateMinTotalCost()
         
@@ -45,6 +48,7 @@ class Simulation:
         print('Optimal Function value:',self.utilityFunction(self.makeSpan(best),self.totalCost(best)))
         print('alpha:',self.alphaVal)
         self.TaskAllocation(best)
+        print()
         self.GroupbyNodeAllocation(best)
 
 
