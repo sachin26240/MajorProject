@@ -18,6 +18,7 @@ import numpy as np
 #########################
 from DE import differential_evolution as DE
 from GA import Genetic_Algorithm as GA
+from MPSO import PSO
 #########################
 
 
@@ -37,23 +38,25 @@ class Simulation:
         self.showNodeDetails()
         print()
         self.showTaskDetails()
-        print('\n')
+        print('Optimal Values')
         self.calculateMinMakeSpan()
         self.calculateMinTotalCost()
+        print()
 
         start_time = time.time()
         # best, best_fun = self.differential_evolution(100,500,self.utilityFunction,0.5,(0,self.TotalNode-1))
         # best, best_fun = DE(100, 500, self.utilityFunction, 0.5, (0, self.TotalNode-1),self.NoOfTask,self.makeSpan,self.totalCost)
 
-        best, best_fun = GA(100, 500, self.utilityFunction, self.NoOfTask,self.TotalNode,self.makeSpan,self.totalCost)
+        best, best_fun = PSO(100, 500, self.utilityFunction, self.NoOfTask,self.TotalNode,self.makeSpan,self.totalCost)
 
         print('The elapsed time:%s' % (time.time() - start_time))
-
-        print('Best:', list(best))
-        print('Total Cost:', self.totalCost(best))
-        print('Makespan:', self.makeSpan(best))
+        print('Alpha value:', self.alphaVal)
+        print('Global Best:', list(best))
         print('Optimal Function value:',best_fun)
-        print('alpha:', self.alphaVal)
+        print('Total Cost required:', self.totalCost(best))
+        print('Makespan (Total time required):', self.makeSpan(best))
+        
+        print()
         self.TaskAllocation(best)
         print()
         self.GroupbyNodeAllocation(best)

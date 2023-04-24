@@ -208,10 +208,5 @@ def Genetic_Algorithm(pop_size, generations, f, NoOfTask,TotalNode, makeSpan, to
     #-----Results ------------------------------------
     ###################################################
 
-    print('Global Best:',best_list[0])
-    print('Total Cost:',totalCost(best_list[0]))
-    print('Makespan:',makeSpan(best_list[0]))
-    print('Optimal Function value:',f(makeSpan(best_list[0]),totalCost(best_list[0])))
-    print('----------------------------------------')
     return best_list[0] , f(makeSpan(best_list[0]),totalCost(best_list[0]))
 
