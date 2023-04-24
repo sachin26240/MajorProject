@@ -38,28 +38,55 @@ class Simulation:
         self.showNodeDetails()
         print()
         self.showTaskDetails()
-        print('Optimal Values')
+        print('***********************************************************\nOptimal Values')
         self.calculateMinMakeSpan()
         self.calculateMinTotalCost()
         print()
 
-        start_time = time.time()
-        # best, best_fun = self.differential_evolution(100,500,self.utilityFunction,0.5,(0,self.TotalNode-1))
-        # best, best_fun = DE(100, 500, self.utilityFunction, 0.5, (0, self.TotalNode-1),self.NoOfTask,self.makeSpan,self.totalCost)
+        display = True
 
-        best, best_fun = PSO(100, 500, self.utilityFunction, self.NoOfTask,self.TotalNode,self.makeSpan,self.totalCost)
+        while True:
+            print('*******************************************************')
+            start_time = time.time()
 
-        print('The elapsed time:%s' % (time.time() - start_time))
-        print('Alpha value:', self.alphaVal)
-        print('Global Best:', list(best))
-        print('Optimal Function value:',best_fun)
-        print('Total Cost required:', self.totalCost(best))
-        print('Makespan (Total time required):', self.makeSpan(best))
-        
-        print()
-        self.TaskAllocation(best)
-        print()
-        self.GroupbyNodeAllocation(best)
+            print('Choose an Algorithm:\n1. Genetic Algorithm\n2. Particle Swarm Optimization Algorithm\n3. Differential Evolution Algorithm\n4. Exit')
+            selAlgo = int(input('Choose an algorithm (1/2/3/4):'))
+
+            # best, best_fun = self.differential_evolution(100,500,self.utilityFunction,0.5,(0,self.TotalNode-1))
+            match selAlgo:
+                case 1:
+                    print()
+                    print('******************Genetic Algorithm****************************')
+                    best, best_fun = GA(100, 500, self.utilityFunction,self.NoOfTask,self.TotalNode,self.makeSpan,self.totalCost)
+                case 2:
+                    print()
+                    print('******************Particle Swarm Optimization Algorithm****************************')
+                    best, best_fun = PSO(100, 500, self.utilityFunction, self.NoOfTask,self.TotalNode,self.makeSpan,self.totalCost)
+                case 3:
+                    print()
+                    print('******************Differential Evolution Algorithm****************************')
+                    best, best_fun = DE(100, 500, self.utilityFunction, 0.5, (0, self.TotalNode-1),self.NoOfTask,self.makeSpan,self.totalCost)
+                case 4:
+                    print('Simulation Ended')
+                    break
+                case _:
+                    display=False
+                    print('******************************************************')
+                    print('Incorrect Option')
+
+            if display:
+                print('The elapsed time:%s' % (time.time() - start_time))
+                print('Alpha value:', self.alphaVal)
+                print('Global Best:', list(best))
+                print('Optimal Function value:',best_fun)
+                print('Total Cost required:', self.totalCost(best))
+                print('Makespan (Total time required):', self.makeSpan(best))
+                
+                print()
+                self.TaskAllocation(best)
+                print()
+                self.GroupbyNodeAllocation(best)
+                print()
 
     # datageneration function
     def dataGeneration(self, numoftask, numofcloudnode, numoffognode):
