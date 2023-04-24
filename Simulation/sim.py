@@ -55,18 +55,22 @@ class Simulation:
             # best, best_fun = self.differential_evolution(100,500,self.utilityFunction,0.5,(0,self.TotalNode-1))
             match selAlgo:
                 case 1:
+                    display = True
                     print()
                     print('******************Genetic Algorithm****************************')
                     best, best_fun = GA(100, 500, self.utilityFunction,self.NoOfTask,self.TotalNode,self.makeSpan,self.totalCost)
                 case 2:
+                    display = True
                     print()
                     print('******************Particle Swarm Optimization Algorithm****************************')
                     best, best_fun = PSO(100, 500, self.utilityFunction, self.NoOfTask,self.TotalNode,self.makeSpan,self.totalCost)
                 case 3:
+                    display = True
                     print()
                     print('******************Differential Evolution Algorithm****************************')
                     best, best_fun = DE(100, 500, self.utilityFunction, 0.5, (0, self.TotalNode-1),self.NoOfTask,self.makeSpan,self.totalCost)
                 case 4:
+                    display = True
                     print('Simulation Ended')
                     break
                 case _:
